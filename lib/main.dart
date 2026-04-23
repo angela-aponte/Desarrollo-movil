@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:desarrollo_movil/routes/app_router.dart';
 import 'themes/app_theme.dart'; // Importar el tema
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    await dotenv.load(fileName: '.env', isOptional: true);
+  }
   runApp(const MyApp());
 }
 
