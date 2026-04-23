@@ -91,6 +91,12 @@ class _EndpointListScreenState extends State<EndpointListScreen> {
                           subtitle: Text(
                             item.id != null ? 'ID: ${item.id}' : 'Sin ID',
                           ),
+                          onTap: () {
+                            context.push(
+                              '/endpoint/${widget.endpoint.id}/detail',
+                              extra: item,
+                            );
+                          },
                         ),
                       );
                     },

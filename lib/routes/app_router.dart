@@ -5,6 +5,8 @@ import 'package:desarrollo_movil/views/future/future_screen.dart';
 import 'package:desarrollo_movil/views/home/home_screen.dart';
 import 'package:desarrollo_movil/views/isolate/isolate_screen.dart';
 import 'package:desarrollo_movil/views/endpoints/endpoint_list_screen.dart';
+import 'package:desarrollo_movil/views/endpoints/endpoint_detail_screen.dart';
+import 'package:desarrollo_movil/models/api_colombia_item_model.dart';
 import 'package:desarrollo_movil/views/paso_parametros/detalle_screen.dart';
 import 'package:desarrollo_movil/views/paso_parametros/paso_parametros_screen.dart';
 import 'package:desarrollo_movil/views/timer/timer_screen.dart';
@@ -75,6 +77,26 @@ final GoRouter appRouter = GoRouter(
         }
 
         return EndpointListScreen(endpoint: endpoint);
+      },
+    ),
+    GoRoute(
+      path: '/endpoint/:endpointId/detail',
+      name: 'endpoint_detail',
+      builder: (context, state) {
+        final endpointId = state.pathParameters['endpointId']!;
+        final endpoint = _apiService.findById(endpointId);
+        final selectedItem = state.extra;
+
+        if (endpoint == null || selectedItem is! ApiColombiaItemModel) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Detalle no disponible')),
+            body: const Center(
+              child: Text('No se pudo cargar el detalle seleccionado.'),
+            ),
+          );
+        }
+
+        return EndpointDetailScreen(endpoint: endpoint, item: selectedItem);
       },
     ),
   ],

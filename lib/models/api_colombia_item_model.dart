@@ -13,8 +13,17 @@ class ApiColombiaItemModel {
     return ApiColombiaItemModel(
       id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
       title: _resolveTitle(json),
-      raw: json,
+      raw: Map<String, dynamic>.from(json),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = Map<String, dynamic>.from(raw);
+    if (id != null) {
+      data['id'] = id;
+    }
+    data['title'] = title;
+    return data;
   }
 
   static String _resolveTitle(Map<String, dynamic> json) {

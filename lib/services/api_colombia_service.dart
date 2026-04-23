@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:desarrollo_movil/config/app_config.dart';
 import 'package:desarrollo_movil/models/api_colombia_item_model.dart';
+import 'package:desarrollo_movil/models/endpoint_detail_field_model.dart';
 import 'package:desarrollo_movil/models/endpoint_card_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiColombiaService {
@@ -42,6 +43,44 @@ class ApiColombiaService {
     ),
   ];
 
+  static const Map<String, List<EndpointDetailFieldModel>> _detailFields = {
+    'departments': [
+      EndpointDetailFieldModel(key: 'id', label: 'Id del departamento'),
+      EndpointDetailFieldModel(key: 'name', label: 'Nombre'),
+      EndpointDetailFieldModel(key: 'description', label: 'Descripción'),
+      EndpointDetailFieldModel(
+        key: 'cityCapitalId',
+        label: 'Ciudad capital',
+      ),
+      EndpointDetailFieldModel(
+        key: 'municipalities',
+        label: 'Municipalidades',
+      ),
+      EndpointDetailFieldModel(key: 'surface', label: 'Superficie'),
+      EndpointDetailFieldModel(key: 'population', label: 'Población'),
+      EndpointDetailFieldModel(key: 'phonePrefix', label: 'Prefijo telefónico'),
+    ],
+    'cities': [
+      EndpointDetailFieldModel(key: 'name', label: 'Nombre de la ciudad'),
+      EndpointDetailFieldModel(key: 'departmentId', label: 'Departamento'),
+      EndpointDetailFieldModel(key: 'description', label: 'Descripción'),
+      EndpointDetailFieldModel(key: 'population', label: 'Población'),
+      EndpointDetailFieldModel(key: 'latitude', label: 'Latitud'),
+      EndpointDetailFieldModel(key: 'longitude', label: 'Longitud'),
+    ],
+    'regions': [
+      EndpointDetailFieldModel(key: 'name', label: 'Nombre de la región'),
+      EndpointDetailFieldModel(key: 'description', label: 'Descripción'),
+      EndpointDetailFieldModel(key: 'code', label: 'Código'),
+    ],
+    'touristic-attractions': [
+      EndpointDetailFieldModel(key: 'name', label: 'Nombre del sitio'),
+      EndpointDetailFieldModel(key: 'description', label: 'Descripción'),
+      EndpointDetailFieldModel(key: 'cityId', label: 'Ciudad'),
+      EndpointDetailFieldModel(key: 'address', label: 'Dirección'),
+    ],
+  };
+
   List<EndpointCardModel> getSelectedEndpoints() => _endpoints;
 
   EndpointCardModel? findById(String endpointId) {
@@ -52,19 +91,67 @@ class ApiColombiaService {
     }
   }
 
+  List<EndpointDetailFieldModel> getDetailFields(String endpointId) {
+    return _detailFields[endpointId] ?? const [];
+  }
+
+  Future<String?> fetchCityNameById(int cityId) async {
+    final uri = _buildUri('/api/v1/City/$cityId');
+    final decoded = await _fetchSingleResource(uri);
+    if (decoded == null) {
+      return null;
+    }
+
+    final name = decoded['name'];
+    if (name is String && name.trim().isNotEmpty) {
+      return name;
+    }
+
+    final cityName = decoded['cityName'];
+    if (cityName is String && cityName.trim().isNotEmpty) {
+      return cityName;
+    }
+
+    return null;
+  }
+
+  Future<String?> fetchDepartmentNameById(int departmentId) async {
+    final uri = _buildUri('/api/v1/Department/$departmentId');
+    final decoded = await _fetchSingleResource(uri);
+    if (decoded == null) {
+      return null;
+    }
+
+    final name = decoded['name'];
+    if (name is String && name.trim().isNotEmpty) {
+      return name;
+    }
+
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> _fetchSingleResource(Uri uri) async {
+    final response = await _httpClient.get(uri);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      return null;
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+
+    return decoded;
+  }
+
   Future<List<ApiColombiaItemModel>> fetchEndpointItems(String endpointId) async {
     final endpoint = findById(endpointId);
     if (endpoint == null) {
       throw Exception('Endpoint no configurado: $endpointId');
     }
 
-    final baseUrl = dotenv.env['API_BASE_URL']?.trim().isNotEmpty == true
-        ? dotenv.env['API_BASE_URL']!.trim()
-        : 'https://api-colombia.com/';
-
-    final uri = Uri.parse(baseUrl).resolve(endpoint.path.startsWith('/')
-        ? endpoint.path.substring(1)
-        : endpoint.path);
+    final uri = _buildUri(endpoint.path);
 
     final response = await _httpClient.get(uri);
 
@@ -84,5 +171,13 @@ class ApiColombiaService {
         .whereType<Map<String, dynamic>>()
         .map(ApiColombiaItemModel.fromJson)
         .toList();
+  }
+
+  Uri _buildUri(String path) {
+    final baseUrl = AppConfig.apiBaseUrl;
+
+    return Uri.parse(baseUrl).resolve(
+      path.startsWith('/') ? path.substring(1) : path,
+    );
   }
 }
