@@ -104,7 +104,7 @@ class CustomDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.memory),
-            title: const Text('Isolate'),
+            title: const Text('Pokemones'),
             onTap: () {
               context.go('/pokemons');
               Navigator.pop(context);
