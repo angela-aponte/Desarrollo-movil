@@ -1,5 +1,9 @@
 import 'package:desarrollo_movil/views/home/home_screen.dart';
 import 'package:desarrollo_movil/views/isolate/isolate_screen.dart';
+import 'package:desarrollo_movil/views/accidents/accident_statistics_screen.dart';
+import 'package:desarrollo_movil/views/establishments/establishment_management_screen.dart';
+import 'package:desarrollo_movil/views/establishments/establishment_detail_screen.dart';
+import 'package:desarrollo_movil/views/establishments/establishment_form_screen.dart';
 import 'package:desarrollo_movil/views/paso_parametros/detalle_screen.dart';
 import 'package:desarrollo_movil/views/paso_parametros/paso_parametros_screen.dart';
 import 'package:desarrollo_movil/views/pokemons/pokemon_detail_view.dart';
@@ -45,6 +49,37 @@ final GoRouter appRouter = GoRouter(
       path: '/isolate',
       name: 'isolate',
       builder: (context, state) => const IsolateScreen(),
+    ),
+    GoRoute(
+      path: '/accidents',
+      name: 'accidents',
+      builder: (context, state) => const AccidentStatisticsScreen(),
+    ),
+    GoRoute(
+      path: '/establishments',
+      name: 'establishments',
+      builder: (context, state) => const EstablishmentManagementScreen(),
+    ),
+    GoRoute(
+      path: '/establishments/new',
+      name: 'establishment_new',
+      builder: (context, state) => const EstablishmentFormScreen(),
+    ),
+    GoRoute(
+      path: '/establishments/:id',
+      name: 'establishment_detail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EstablishmentDetailScreen(id: id);
+      },
+    ),
+    GoRoute(
+      path: '/establishments/:id/edit',
+      name: 'establishment_edit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EstablishmentFormScreen(id: id);
+      },
     ),
     //!Ruta para Future
     GoRoute(
