@@ -13,6 +13,12 @@ import 'package:desarrollo_movil/views/timer/timer_screen.dart';
 import 'package:desarrollo_movil/services/api_colombia_service.dart';
 
 final ApiColombiaService _apiService = ApiColombiaService();
+import 'package:desarrollo_movil/views/pokemons/pokemon_detail_view.dart';
+import 'package:desarrollo_movil/views/pokemons/pokemon_list_view.dart';
+import 'package:go_router/go_router.dart';
+
+import '../views/ciclo_vida/ciclo_vida_screen.dart';
+import '../views/future/future_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   routes: [
@@ -45,20 +51,33 @@ final GoRouter appRouter = GoRouter(
       name: 'ciclo_vida',
       builder: (context, state) => const CicloVidaScreen(),
     ),
+    //!Ruta para el isolate
+    GoRoute(
+      path: '/isolate',
+      name: 'isolate',
+      builder: (context, state) => const IsolateScreen(),
+    ),
+    //!Ruta para Future
     GoRoute(
       path: '/future',
       name: 'future',
       builder: (context, state) => const FutureScreen(),
     ),
+    //!Ruta para http
     GoRoute(
-      path: '/timer',
-      name: 'timer',
-      builder: (context, state) => const TimerScreen(),
+      path: '/pokemons',
+      name: 'pokemons',
+      builder: (context, state) => const PokemonListView(),
     ),
+    //!Ruta para detalle de pokemones
     GoRoute(
-      path: '/isolate',
-      name: 'isolate',
-      builder: (context, state) => const IsolateScreen(),
+      path: '/pokemon/:name', // se recibe el nombre del pokemon como parametro
+      name: 'pokemon_detail',
+      builder: (context, state) {
+        final name =
+            state.pathParameters['name']!; // se captura el nombre del pokemon.
+        return PokemonDetailView(name: name);
+      },
     ),
     GoRoute(
       path: '/endpoint/:endpointId',
