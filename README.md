@@ -1,135 +1,112 @@
-# Desarrollo Movil - API Colombia (Flutter)
+# Desarrollo Movil - Distribucion de APK
 
-Aplicacion Flutter con navegacion usando go_router para consumir API Colombia, mostrar un dashboard de endpoints, listar registros y visualizar detalle (maestro-detalle) con campos personalizados.
+Este proyecto Flutter incluye flujo de construccion y distribucion interna para pruebas con testers.
 
-## 1. API usada y endpoints seleccionados
+## Flujo general
 
-- API base: https://api-colombia.com/
-- Endpoint base publico: https://api-colombia.com/api/v1/
+Generar APK -> App Distribution -> Testers -> Instalacion -> Actualizacion
 
-Endpoints implementados en la app:
+Breve explicacion del flujo:
 
-1. Departamentos: `/api/v1/Department`
-2. Ciudades: `/api/v1/City`
-3. Regiones: `/api/v1/Region`
-4. Sitios turisticos: `/api/v1/TouristicAttraction`
+1. Generar APK: se compila una build firmada para distribucion.
+2. App Distribution: se sube el APK a Firebase App Distribution.
+3. Testers: se asignan testers o grupos para recibir la release.
+4. Instalacion: cada tester instala la app desde el enlace de Firebase.
+5. Actualizacion: nuevas versiones se publican sobre el mismo flujo.
 
-La configuracion de la URL base se obtiene desde `.env` y se centraliza en `lib/config/app_config.dart`.
+## Publicacion
 
-## 2. Arquitectura y estructura del proyecto
+Pasos resumidos:
 
-Estructura principal:
+1. Actualizar version en `pubspec.yaml` (ejemplo: `version: 1.1.0+2`).
+2. Generar APK:
 
-```text
-lib/
-	config/          // configuracion general (AppConfig y uso de .env)
-	models/          // modelos con fromJson y toJson
-	routes/          // configuracion de go_router
-	services/        // llamadas HTTP y transformacion de datos
-	themes/          // tema global
-	views/           // pantallas (Dashboard, Listado, Detalle)
-	widgets/         // componentes reutilizables
-	main.dart
+```bash
+flutter clean
+flutter pub get
+flutter build apk --release
 ```
 
-Responsabilidades:
+3. Subir APK a Firebase App Distribution (consola web o CLI).
+4. Agregar release notes y seleccionar testers/grupos.
+5. Publicar y validar instalacion desde correo/enlace de distribucion.
 
-- `models/`: definicion de entidades (`ApiColombiaItemModel`, `EndpointCardModel`, `EndpointDetailFieldModel`)
-- `services/`: consumo API, resolucion de nombres relacionados (por ejemplo ciudad capital y departamento)
-- `routes/`: rutas tipicas y rutas dinamicas con parametros
-- `views/`: flujo maestro-detalle (home -> listado -> detalle)
-- `widgets/`: drawer reutilizable
+Como replicar el proceso en el equipo:
 
-## 3. Capturas (Dashboard, Listado, Detalle y estados)
+1. Definir responsable de versionado por sprint/release.
+2. Usar misma convencion de version y release notes.
+3. Mantener lista unica de testers/grupos en Firebase.
+4. Verificar que todos usen mismo `applicationId` y proyecto Firebase.
+5. Documentar en PR: version, changelog y enlace de distribucion.
 
-Incluye en esta seccion las capturas de evidencias de ejecucion:
+Ejemplo CLI (opcional) para equipos con Firebase CLI configurado:
 
-1. Dashboard de endpoints
-2. Listado con datos
-3. Detalle de un registro
-4. Estado de carga
-5. Estado de error
-6. Estado sin resultados
+```bash
+firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+  --app <FIREBASE_APP_ID> \
+  --groups "qa-testers" \
+  --release-notes "Fix rutas y estabilidad de inicio"
+```
 
-Plantilla sugerida para documentarlas:
+## Versionado
+
+Formato usado en Flutter:
+
+- `version: MAJOR.MINOR.PATCH+BUILD`
+- Ejemplo: `version: 1.0.1+2`
+
+Guia recomendada:
+
+1. MAJOR: cambios incompatibles.
+2. MINOR: nuevas funcionalidades compatibles.
+3. PATCH: correcciones sin ruptura.
+4. BUILD: numero interno de compilacion/distribucion.
+
+## Formato de Release Notes
+
+Plantilla corta usada en el proyecto:
 
 ```md
-### Dashboard
-![Dashboard](assets/screenshots/dashboard.png)
+Release Notes - v1.1.0+2
 
-### Listado
-![Listado](assets/screenshots/listado.png)
-
-### Detalle
-![Detalle](assets/screenshots/detalle.png)
-
-### Estado de carga
-![Loading](assets/screenshots/estado_loading.png)
-
-### Estado de error
-![Error](assets/screenshots/estado_error.png)
-
-### Estado vacio
-![Vacio](assets/screenshots/estado_vacio.png)
+- Fix: correccion de errores de inicializacion en `main.dart`.
+- Fix: limpieza y orden de imports/rutas en `app_router.dart`.
+- Improve: estabilidad general del flujo de navegacion.
+- Build: APK de release generado y distribuido a testers.
 ```
 
-## 4. Rutas implementadas con go_router y parametros
+Sugerencia:
 
-Rutas base del modulo API:
+- Mantener 3-6 bullets maximos.
+- Separar en categorias: `Fix`, `Improve`, `Feature`, `Build`.
+- Evitar texto largo; enfocar en impacto para tester/usuario.
 
-1. Home: `/`
-2. Listado por endpoint: `/endpoint/:endpointId`
-3. Detalle por endpoint: `/endpoint/:endpointId/detail`
+## Capturas o GIFs del panel
 
-Parametros enviados:
+Incluye capturas breves del panel de App Distribution para evidencias:
 
-- `endpointId` se envia como parametro de ruta en listado y detalle.
-- En detalle se envia el registro seleccionado por `extra` (`ApiColombiaItemModel`) desde la pantalla de listado.
+1. Pantalla de releases.
+2. Formulario de carga de APK/AAB.
+3. Seleccion de testers o grupos.
+4. Release notes publicadas.
 
-Ejemplo de navegacion:
+Plantilla sugerida (agrega tus archivos en `assets/screenshots/`):
 
-```dart
-context.go('/endpoint/${card.id}');
+```md
+### Panel - Releases
+![Panel Releases](assets/screenshots/app_distribution_releases.png)
 
-context.push(
-	'/endpoint/${widget.endpoint.id}/detail',
-	extra: item,
-);
+### Panel - Carga de build
+![Upload Build](assets/screenshots/app_distribution_upload.gif)
+
+### Panel - Testers
+![Testers](assets/screenshots/app_distribution_testers.png)
+
+### Panel - Release Notes
+![Release Notes](assets/screenshots/app_distribution_release_notes.png)
 ```
 
-## 5. Manejo de estados
-
-En `EndpointListScreen` se usa `FutureBuilder` para representar estados de UI:
-
-1. Cargando: `ConnectionState.waiting` -> `CircularProgressIndicator`
-2. Error: `snapshot.hasError` -> mensaje de error
-3. Vacio: lista vacia -> "No se encontraron resultados"
-4. Exito: `ListView.builder` con registros
-
-En `EndpointDetailScreen`, para campos relacionales, se usa `FutureBuilder` adicional para resolver nombres (por ejemplo `cityCapitalId` -> nombre de ciudad).
-
-## 6. Ejemplo de respuesta JSON
-
-Ejemplo simplificado de un registro del endpoint de Departamentos:
-
-```json
-{
-	"id": 3,
-	"name": "Arauca",
-	"description": "Departamento de la region Orinoquia",
-	"cityCapitalId": 143,
-	"municipalities": 7,
-	"surface": 23818,
-	"population": 304978,
-	"phonePrefix": "7"
-}
-```
-
-Endpoint base de referencia:
-
-- https://api-colombia.com/api/v1/
-
-## 7. Ejecucion
+## Ejecucion local
 
 ```bash
 flutter pub get
