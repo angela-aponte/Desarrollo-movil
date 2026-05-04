@@ -9,17 +9,11 @@ import 'package:desarrollo_movil/views/endpoints/endpoint_detail_screen.dart';
 import 'package:desarrollo_movil/models/api_colombia_item_model.dart';
 import 'package:desarrollo_movil/views/paso_parametros/detalle_screen.dart';
 import 'package:desarrollo_movil/views/paso_parametros/paso_parametros_screen.dart';
-import 'package:desarrollo_movil/views/timer/timer_screen.dart';
 import 'package:desarrollo_movil/services/api_colombia_service.dart';
-
-final ApiColombiaService _apiService = ApiColombiaService();
 import 'package:desarrollo_movil/views/pokemons/pokemon_detail_view.dart';
 import 'package:desarrollo_movil/views/pokemons/pokemon_list_view.dart';
-import 'package:go_router/go_router.dart';
 
-import '../views/ciclo_vida/ciclo_vida_screen.dart';
-import '../views/future/future_screen.dart';
-
+final ApiColombiaService _apiService = ApiColombiaService();
 final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
@@ -45,37 +39,31 @@ final GoRouter appRouter = GoRouter(
         return DetalleScreen(parametro: parametro, metodoNavegacion: metodo);
       },
     ),
-    //!Ruta para el ciclo de vida
     GoRoute(
       path: '/ciclo_vida',
       name: 'ciclo_vida',
       builder: (context, state) => const CicloVidaScreen(),
     ),
-    //!Ruta para el isolate
     GoRoute(
       path: '/isolate',
       name: 'isolate',
       builder: (context, state) => const IsolateScreen(),
     ),
-    //!Ruta para Future
     GoRoute(
       path: '/future',
       name: 'future',
       builder: (context, state) => const FutureScreen(),
     ),
-    //!Ruta para http
     GoRoute(
       path: '/pokemons',
       name: 'pokemons',
       builder: (context, state) => const PokemonListView(),
     ),
-    //!Ruta para detalle de pokemones
     GoRoute(
-      path: '/pokemon/:name', // se recibe el nombre del pokemon como parametro
+      path: '/pokemon/:name',
       name: 'pokemon_detail',
       builder: (context, state) {
-        final name =
-            state.pathParameters['name']!; // se captura el nombre del pokemon.
+        final name = state.pathParameters['name']!;
         return PokemonDetailView(name: name);
       },
     ),

@@ -14,14 +14,6 @@ void main() async {
   }
   // Inicializar dotenv para cargar las variables de entorno
   // await dotenv.load(fileName: ".env");
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (_) {
-    await dotenv.load(fileName: '.env', isOptional: true);
-  }
   runApp(const MyApp());
 }
 
