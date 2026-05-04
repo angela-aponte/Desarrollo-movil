@@ -1,7 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:desarrollo_movil/views/ciclo_vida/ciclo_vida_screen.dart';
+import 'package:desarrollo_movil/views/future/future_screen.dart';
 import 'package:desarrollo_movil/views/home/home_screen.dart';
 import 'package:desarrollo_movil/views/isolate/isolate_screen.dart';
+import 'package:desarrollo_movil/views/endpoints/endpoint_list_screen.dart';
+import 'package:desarrollo_movil/views/endpoints/endpoint_detail_screen.dart';
+import 'package:desarrollo_movil/models/api_colombia_item_model.dart';
 import 'package:desarrollo_movil/views/paso_parametros/detalle_screen.dart';
 import 'package:desarrollo_movil/views/paso_parametros/paso_parametros_screen.dart';
+import 'package:desarrollo_movil/views/timer/timer_screen.dart';
+import 'package:desarrollo_movil/services/api_colombia_service.dart';
+
+final ApiColombiaService _apiService = ApiColombiaService();
 import 'package:desarrollo_movil/views/pokemons/pokemon_detail_view.dart';
 import 'package:desarrollo_movil/views/pokemons/pokemon_list_view.dart';
 import 'package:go_router/go_router.dart';
@@ -66,6 +77,45 @@ final GoRouter appRouter = GoRouter(
         final name =
             state.pathParameters['name']!; // se captura el nombre del pokemon.
         return PokemonDetailView(name: name);
+      },
+    ),
+    GoRoute(
+      path: '/endpoint/:endpointId',
+      name: 'endpoint_list',
+      builder: (context, state) {
+        final endpointId = state.pathParameters['endpointId']!;
+        final endpoint = _apiService.findById(endpointId);
+
+        if (endpoint == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Endpoint no encontrado')),
+            body: Center(
+              child: Text('No existe configuracion para: $endpointId'),
+            ),
+          );
+        }
+
+        return EndpointListScreen(endpoint: endpoint);
+      },
+    ),
+    GoRoute(
+      path: '/endpoint/:endpointId/detail',
+      name: 'endpoint_detail',
+      builder: (context, state) {
+        final endpointId = state.pathParameters['endpointId']!;
+        final endpoint = _apiService.findById(endpointId);
+        final selectedItem = state.extra;
+
+        if (endpoint == null || selectedItem is! ApiColombiaItemModel) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Detalle no disponible')),
+            body: const Center(
+              child: Text('No se pudo cargar el detalle seleccionado.'),
+            ),
+          );
+        }
+
+        return EndpointDetailScreen(endpoint: endpoint, item: selectedItem);
       },
     ),
   ],
